@@ -15,8 +15,12 @@ public class ToasterMessage {
             ai = c.getPackageManager().getApplicationInfo(c.getPackageName(), PackageManager.GET_META_DATA);
             Bundle bundle = ai.metaData;
             String myApiKey = bundle.getString("my_test_metagadata");
+            Toast.makeText(c,"myApiKey: "+myApiKey,Toast.LENGTH_SHORT).show();
+
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
+            Toast.makeText(c,"Dear developer. " +
+                    "Don't forget to configure <meta-data android:name=\"my_test_metagadata\" android:value=\"testValue\"/> in your AndroidManifest.xml file.",Toast.LENGTH_SHORT).show();
             Log.e("TAG", "Dear developer. " +
                     "Don't forget to configure <meta-data android:name=\"my_test_metagadata\" android:value=\"testValue\"/> in your AndroidManifest.xml file.");
 
