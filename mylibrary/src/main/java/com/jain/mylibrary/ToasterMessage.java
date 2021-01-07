@@ -11,7 +11,7 @@ public class ToasterMessage {
     private static String API_KEY;
 //    String API_KEY="api_key";
 
-    public static void s(Context c, String message){
+    public static void showToastMesssage(Context c, String message){
         try {
             ApplicationInfo ai = null;
             ai = c.getPackageManager().getApplicationInfo(c.getPackageName(), PackageManager.GET_META_DATA);
