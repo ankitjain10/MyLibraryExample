@@ -8,7 +8,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class ToasterMessage {
-    private static String API_KEY;
+    private static String API_KEY="api_key";
 //    String API_KEY="api_key";
 
     public static void showToastMesssage(Context c, String message){
