@@ -9,7 +9,6 @@ import android.widget.Toast;
 
 public class ToasterMessage {
     private static String API_KEY="api_key";
-//    String API_KEY="api_key";
 
     public static void showToastMesssage(Context c, String message){
         try {
@@ -22,17 +21,14 @@ public class ToasterMessage {
             }else{
                 Toast.makeText(c,"Dear developer. " +
                         "Don't forget to configure <meta-data android:name=\"api_key\" android:value=\"your_api_key\"/> in your AndroidManifest.xml file.",Toast.LENGTH_SHORT).show();
-
             return;
             }
 
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(c,"Dear developer. " +
-                    "Don't forget to configure <meta-data android:name=\"my_test_metagadata\" android:value=\"testValue\"/> in your AndroidManifest.xml file.",Toast.LENGTH_SHORT).show();
-            Log.e("TAG", "Dear developer. " +
-                    "Don't forget to configure <meta-data android:name=\"my_test_metagadata\" android:value=\"testValue\"/> in your AndroidManifest.xml file.");
-
+                    "Don't forget to configure <meta-data android:name=\"api_key\" android:value=\"your_api_key\"/> in your AndroidManifest.xml file.",Toast.LENGTH_SHORT).show();
+            return;
         }
         Toast.makeText(c,message,Toast.LENGTH_SHORT).show();
 
