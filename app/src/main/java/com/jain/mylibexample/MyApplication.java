@@ -7,7 +7,7 @@ import com.jain.mylibrary.MySDK;
 public class MyApplication extends Application {
     private static volatile MyApplication _instance;
 
-    private MySDK cleverTap;
+    private MySDK mySDK;
 
     public static synchronized MyApplication getInstance() {
         if (_instance == null) {
@@ -16,8 +16,8 @@ public class MyApplication extends Application {
         return _instance;
     }
 
-    public MySDK getCleverTapInstance() {
-        return cleverTap;
+    public MySDK getSDKInstance() {
+        return mySDK;
     }
 
     @Override
@@ -27,8 +27,8 @@ public class MyApplication extends Application {
         _instance = (MyApplication) getApplicationContext();
 
 //        instance= (MyApplication) getApplicationContext();
-        cleverTap = MySDK.getInstance(_instance);
-        cleverTap.init();
+        mySDK = MySDK.getInstance(_instance);
+        mySDK.init();
     }
 
 }

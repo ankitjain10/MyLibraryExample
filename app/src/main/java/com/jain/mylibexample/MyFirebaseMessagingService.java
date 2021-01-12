@@ -52,7 +52,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 for (Map.Entry<String, String> entry : remoteMessage.getData().entrySet()) {
                     extras.putString(entry.getKey(), entry.getValue());
                 }
-            MyApplication.getInstance().getCleverTapInstance().createNotification(this,extras);
+            MyApplication.getInstance().getSDKInstance().createNotification(this,extras);
             // Check if message contains a data payload.
             if (remoteMessage.getData().size() > 0) {
                 Log.d(TAG, "Message data payload: " + remoteMessage.getData());

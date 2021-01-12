@@ -1,4 +1,4 @@
-package com.jain.mylibrary;
+package com.jain.mylibrary.pushnotifications;
 
 import androidx.annotation.NonNull;
 

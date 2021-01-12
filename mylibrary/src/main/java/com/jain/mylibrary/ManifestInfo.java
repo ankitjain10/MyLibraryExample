@@ -167,7 +167,7 @@ public class ManifestInfo {
     }
 
     private String[] parseProfileKeys(final Bundle metaData) {
-        String profileKeyString = _getManifestStringValueForKey(metaData, Constants.CLEVERTAP_IDENTIFIER);
+        String profileKeyString = _getManifestStringValueForKey(metaData, Constants.RIDE_AUTH_SDK_IDENTIFIER);
         return !TextUtils.isEmpty(profileKeyString) ? profileKeyString.split(Constants.SEPARATOR_COMMA)
                 : NullConstants.NULL_STRING_ARRAY;
     }

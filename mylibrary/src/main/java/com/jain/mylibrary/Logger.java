@@ -11,25 +11,25 @@ public final class Logger {
      */
     public static void d(String message) {
         if (getStaticDebugLevel() > MySDK.LogLevel.INFO.intValue()) {
-            Log.d(Constants.CLEVERTAP_LOG_TAG, message);
+            Log.d(Constants.RIDE_AUTH_SDK_LOG_TAG, message);
         }
     }
 
     public static void d(String suffix, String message) {
         if (getStaticDebugLevel() > MySDK.LogLevel.INFO.intValue()) {
-            Log.d(Constants.CLEVERTAP_LOG_TAG + ":" + suffix, message);
+            Log.d(Constants.RIDE_AUTH_SDK_LOG_TAG + ":" + suffix, message);
         }
     }
 
     public static void d(String suffix, String message, Throwable t) {
         if (getStaticDebugLevel() > MySDK.LogLevel.INFO.intValue()) {
-            Log.d(Constants.CLEVERTAP_LOG_TAG + ":" + suffix, message, t);
+            Log.d(Constants.RIDE_AUTH_SDK_LOG_TAG + ":" + suffix, message, t);
         }
     }
 
     public static void d(String message, Throwable t) {
         if (getStaticDebugLevel() > MySDK.LogLevel.INFO.intValue()) {
-            Log.d(Constants.CLEVERTAP_LOG_TAG, message, t);
+            Log.d(Constants.RIDE_AUTH_SDK_LOG_TAG, message, t);
         }
     }
 
@@ -38,28 +38,28 @@ public final class Logger {
      */
     public static void i(String message) {
         if (getStaticDebugLevel() >= MySDK.LogLevel.INFO.intValue()) {
-            Log.i(Constants.CLEVERTAP_LOG_TAG, message);
+            Log.i(Constants.RIDE_AUTH_SDK_LOG_TAG, message);
         }
     }
 
     @SuppressWarnings("unused")
     public static void i(String suffix, String message) {
         if (getStaticDebugLevel() >= MySDK.LogLevel.INFO.intValue()) {
-            Log.i(Constants.CLEVERTAP_LOG_TAG + ":" + suffix, message);
+            Log.i(Constants.RIDE_AUTH_SDK_LOG_TAG + ":" + suffix, message);
         }
     }
 
     @SuppressWarnings("unused")
     public static void i(String suffix, String message, Throwable t) {
         if (getStaticDebugLevel() >= MySDK.LogLevel.INFO.intValue()) {
-            Log.i(Constants.CLEVERTAP_LOG_TAG + ":" + suffix, message, t);
+            Log.i(Constants.RIDE_AUTH_SDK_LOG_TAG + ":" + suffix, message, t);
         }
     }
 
     @SuppressWarnings("SameParameterValue")
     public static void i(String message, Throwable t) {
         if (getStaticDebugLevel() >= MySDK.LogLevel.INFO.intValue()) {
-            Log.i(Constants.CLEVERTAP_LOG_TAG, message, t);
+            Log.i(Constants.RIDE_AUTH_SDK_LOG_TAG, message, t);
         }
     }
 
@@ -68,25 +68,25 @@ public final class Logger {
      */
     public static void v(String message) {
         if (getStaticDebugLevel() > MySDK.LogLevel.DEBUG.intValue()) {
-            Log.v(Constants.CLEVERTAP_LOG_TAG, message);
+            Log.v(Constants.RIDE_AUTH_SDK_LOG_TAG, message);
         }
     }
 
     public static void v(String suffix, String message) {
         if (getStaticDebugLevel() > MySDK.LogLevel.DEBUG.intValue()) {
-            Log.v(Constants.CLEVERTAP_LOG_TAG + ":" + suffix, message);
+            Log.v(Constants.RIDE_AUTH_SDK_LOG_TAG + ":" + suffix, message);
         }
     }
 
     public static void v(String suffix, String message, Throwable t) {
         if (getStaticDebugLevel() > MySDK.LogLevel.DEBUG.intValue()) {
-            Log.v(Constants.CLEVERTAP_LOG_TAG + ":" + suffix, message, t);
+            Log.v(Constants.RIDE_AUTH_SDK_LOG_TAG + ":" + suffix, message, t);
         }
     }
 
     public static void v(String message, Throwable t) {
         if (getStaticDebugLevel() > MySDK.LogLevel.DEBUG.intValue()) {
-            Log.v(Constants.CLEVERTAP_LOG_TAG, message, t);
+            Log.v(Constants.RIDE_AUTH_SDK_LOG_TAG, message, t);
         }
     }
 
@@ -96,87 +96,87 @@ public final class Logger {
 
     public void debug(String message) {
         if (getStaticDebugLevel() > MySDK.LogLevel.INFO.intValue()) {
-            Log.d(Constants.CLEVERTAP_LOG_TAG, message);
+            Log.d(Constants.RIDE_AUTH_SDK_LOG_TAG, message);
         }
     }
 
     public void debug(String suffix, String message) {
         if (getStaticDebugLevel() > MySDK.LogLevel.INFO.intValue()) {
             if (message.length() > 4000) {
-                Log.d(Constants.CLEVERTAP_LOG_TAG + ":" + suffix, message.substring(0, 4000));
+                Log.d(Constants.RIDE_AUTH_SDK_LOG_TAG + ":" + suffix, message.substring(0, 4000));
                 debug(suffix, message.substring(4000));
             } else {
-                Log.d(Constants.CLEVERTAP_LOG_TAG + ":" + suffix, message);
+                Log.d(Constants.RIDE_AUTH_SDK_LOG_TAG + ":" + suffix, message);
             }
         }
     }
 
     public void debug(String suffix, String message, Throwable t) {
         if (getStaticDebugLevel() > MySDK.LogLevel.INFO.intValue()) {
-            Log.d(Constants.CLEVERTAP_LOG_TAG + ":" + suffix, message, t);
+            Log.d(Constants.RIDE_AUTH_SDK_LOG_TAG + ":" + suffix, message, t);
         }
     }
 
     @SuppressWarnings("unused")
     public void debug(String message, Throwable t) {
         if (getStaticDebugLevel() > MySDK.LogLevel.INFO.intValue()) {
-            Log.d(Constants.CLEVERTAP_LOG_TAG, message, t);
+            Log.d(Constants.RIDE_AUTH_SDK_LOG_TAG, message, t);
         }
     }
 
     @SuppressWarnings("unused")
     public void info(String message) {
         if (getDebugLevel() >= MySDK.LogLevel.INFO.intValue()) {
-            Log.i(Constants.CLEVERTAP_LOG_TAG, message);
+            Log.i(Constants.RIDE_AUTH_SDK_LOG_TAG, message);
         }
     }
 
     public void info(String suffix, String message) {
         if (getDebugLevel() >= MySDK.LogLevel.INFO.intValue()) {
-            Log.i(Constants.CLEVERTAP_LOG_TAG + ":" + suffix, message);
+            Log.i(Constants.RIDE_AUTH_SDK_LOG_TAG + ":" + suffix, message);
         }
     }
 
     @SuppressWarnings("unused")
     public void info(String suffix, String message, Throwable t) {
         if (getDebugLevel() >= MySDK.LogLevel.INFO.intValue()) {
-            Log.i(Constants.CLEVERTAP_LOG_TAG + ":" + suffix, message, t);
+            Log.i(Constants.RIDE_AUTH_SDK_LOG_TAG + ":" + suffix, message, t);
         }
     }
 
     @SuppressWarnings("unused")
     public void info(String message, Throwable t) {
         if (getDebugLevel() >= MySDK.LogLevel.INFO.intValue()) {
-            Log.i(Constants.CLEVERTAP_LOG_TAG, message, t);
+            Log.i(Constants.RIDE_AUTH_SDK_LOG_TAG, message, t);
         }
     }
 
     public void verbose(String message) {
         if (getStaticDebugLevel() > MySDK.LogLevel.DEBUG.intValue()) {
-            Log.v(Constants.CLEVERTAP_LOG_TAG, message);
+            Log.v(Constants.RIDE_AUTH_SDK_LOG_TAG, message);
         }
     }
 
     public void verbose(String suffix, String message) {
         if (getStaticDebugLevel() > MySDK.LogLevel.DEBUG.intValue()) {
             if (message.length() > 4000) {
-                Log.v(Constants.CLEVERTAP_LOG_TAG + ":" + suffix, message.substring(0, 4000));
+                Log.v(Constants.RIDE_AUTH_SDK_LOG_TAG + ":" + suffix, message.substring(0, 4000));
                 verbose(suffix, message.substring(4000));
             } else {
-                Log.v(Constants.CLEVERTAP_LOG_TAG + ":" + suffix, message);
+                Log.v(Constants.RIDE_AUTH_SDK_LOG_TAG + ":" + suffix, message);
             }
         }
     }
 
     public void verbose(String suffix, String message, Throwable t) {
         if (getStaticDebugLevel() > MySDK.LogLevel.DEBUG.intValue()) {
-            Log.v(Constants.CLEVERTAP_LOG_TAG + ":" + suffix, message, t);
+            Log.v(Constants.RIDE_AUTH_SDK_LOG_TAG + ":" + suffix, message, t);
         }
     }
 
     public void verbose(String message, Throwable t) {
         if (getStaticDebugLevel() > MySDK.LogLevel.DEBUG.intValue()) {
-            Log.v(Constants.CLEVERTAP_LOG_TAG, message, t);
+            Log.v(Constants.RIDE_AUTH_SDK_LOG_TAG, message, t);
         }
     }
 

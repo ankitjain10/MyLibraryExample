@@ -1,4 +1,4 @@
-package com.jain.mylibrary;
+package com.jain.mylibrary.pushnotifications;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -6,6 +6,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
+import com.jain.mylibrary.Constants;
+import com.jain.mylibrary.Logger;
+import com.jain.mylibrary.MySDK;
+import com.jain.mylibrary.Utils;
 
 
 public class CTPushNotificationReceiver extends BroadcastReceiver {

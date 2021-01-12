@@ -16,19 +16,19 @@ import java.util.ArrayList;
 import static com.jain.mylibrary.JsonUtil.toJsonArray;
 
 
-public class CleverTapInstanceConfig implements Parcelable {
+public class MySDKInstanceConfig implements Parcelable {
 
     @SuppressWarnings("unused")
-    public static final Creator<CleverTapInstanceConfig> CREATOR
-            = new Creator<CleverTapInstanceConfig>() {
+    public static final Creator<MySDKInstanceConfig> CREATOR
+            = new Creator<MySDKInstanceConfig>() {
         @Override
-        public CleverTapInstanceConfig createFromParcel(Parcel in) {
-            return new CleverTapInstanceConfig(in);
+        public MySDKInstanceConfig createFromParcel(Parcel in) {
+            return new MySDKInstanceConfig(in);
         }
 
         @Override
-        public CleverTapInstanceConfig[] newArray(int size) {
-            return new CleverTapInstanceConfig[size];
+        public MySDKInstanceConfig[] newArray(int size) {
+            return new MySDKInstanceConfig[size];
         }
     };
 
@@ -75,29 +75,29 @@ public class CleverTapInstanceConfig implements Parcelable {
     private boolean useGoogleAdId;
 
     @SuppressWarnings("unused")
-    public static CleverTapInstanceConfig createInstance(Context context, @NonNull String accountId,
-                                                                                   @NonNull String accountToken) {
+    public static MySDKInstanceConfig createInstance(Context context, @NonNull String accountId,
+                                                     @NonNull String accountToken) {
 
         //noinspection ConstantConditions
         if (accountId == null || accountToken == null) {
             Logger.i("CleverTap accountId and accountToken cannot be null");
             return null;
         }
-        return new CleverTapInstanceConfig(context, accountId, accountToken, null, false);
+        return new MySDKInstanceConfig(context, accountId, accountToken, null, false);
     }
 
     @SuppressWarnings({"unused"})
-    public static CleverTapInstanceConfig createInstance(Context context, @NonNull String accountId,
-                                                                                   @NonNull String accountToken, String accountRegion) {
+    public static MySDKInstanceConfig createInstance(Context context, @NonNull String accountId,
+                                                     @NonNull String accountToken, String accountRegion) {
         //noinspection ConstantConditions
         if (accountId == null || accountToken == null) {
             Logger.i("CleverTap accountId and accountToken cannot be null");
             return null;
         }
-        return new CleverTapInstanceConfig(context, accountId, accountToken, accountRegion, false);
+        return new MySDKInstanceConfig(context, accountId, accountToken, accountRegion, false);
     }
 
-    CleverTapInstanceConfig(CleverTapInstanceConfig config) {
+    MySDKInstanceConfig(MySDKInstanceConfig config) {
         this.accountId = config.accountId;
         this.accountToken = config.accountToken;
         this.accountRegion = config.accountRegion;
@@ -121,8 +121,8 @@ public class CleverTapInstanceConfig implements Parcelable {
         this.identityKeys = config.identityKeys;
     }
 
-    private CleverTapInstanceConfig(Context context, String accountId, String accountToken, String accountRegion,
-                                    boolean isDefault) {
+    private MySDKInstanceConfig(Context context, String accountId, String accountToken, String accountRegion,
+                                boolean isDefault) {
         this.accountId = accountId;
         this.accountToken = accountToken;
         this.accountRegion = accountRegion;
@@ -154,7 +154,7 @@ public class CleverTapInstanceConfig implements Parcelable {
         }
     }
 
-    private CleverTapInstanceConfig(String jsonString) throws Throwable {
+    private MySDKInstanceConfig(String jsonString) throws Throwable {
         try {
             JSONObject configJsonObject = new JSONObject(jsonString);
             if (configJsonObject.has(Constants.KEY_ACCOUNT_ID)) {
@@ -225,7 +225,7 @@ public class CleverTapInstanceConfig implements Parcelable {
         }
     }
 
-    private CleverTapInstanceConfig(Parcel in) {
+    private MySDKInstanceConfig(Parcel in) {
         accountId = in.readString();
         accountToken = in.readString();
         accountRegion = in.readString();
@@ -483,16 +483,16 @@ public class CleverTapInstanceConfig implements Parcelable {
 
     // convenience to construct the internal only default config
     @SuppressWarnings({"unused", "WeakerAccess"})
-    protected static CleverTapInstanceConfig createDefaultInstance(Context context, @NonNull String accountId,
-                                                                                             @NonNull String accountToken, String accountRegion) {
-        return new CleverTapInstanceConfig(context, accountId, accountToken, accountRegion, true);
+    protected static MySDKInstanceConfig createDefaultInstance(Context context, @NonNull String accountId,
+                                                               @NonNull String accountToken, String accountRegion) {
+        return new MySDKInstanceConfig(context, accountId, accountToken, accountRegion, true);
     }
 
     // for internal use only!
     @SuppressWarnings({"unused", "WeakerAccess"})
-    protected static CleverTapInstanceConfig createInstance(@NonNull String jsonString) {
+    protected static MySDKInstanceConfig createInstance(@NonNull String jsonString) {
         try {
-            return new CleverTapInstanceConfig(jsonString);
+            return new MySDKInstanceConfig(jsonString);
         } catch (Throwable t) {
             return null;
         }

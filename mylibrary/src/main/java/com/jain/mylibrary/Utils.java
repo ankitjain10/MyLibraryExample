@@ -42,7 +42,7 @@ import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import static com.jain.mylibrary.ToasterMessage.TAG;
+import static com.jain.mylibrary.Constants.RIDE_AUTH_SDK_LOG_TAG;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class Utils {
@@ -176,7 +176,7 @@ public final class Utils {
                 try {
                     listdata.add(array.getString(i));
                 } catch (JSONException e) {
-                    Log.d(TAG,"Could not convert JSONArray to ArrayList - " + e.getMessage());
+                    Log.d(RIDE_AUTH_SDK_LOG_TAG,"Could not convert JSONArray to ArrayList - " + e.getMessage());
                 }
             }
         }
@@ -235,7 +235,7 @@ public final class Utils {
             return BitmapFactory.decodeStream(input);
         } catch (IOException e) {
 
-            Log.d(TAG,"Couldn't download the notification icon. URL was: " + srcUrl);
+            Log.d(RIDE_AUTH_SDK_LOG_TAG,"Couldn't download the notification icon. URL was: " + srcUrl);
             return null;
         } finally {
             try {
@@ -243,7 +243,7 @@ public final class Utils {
                     connection.disconnect();
                 }
             } catch (Throwable t) {
-                Log.d(TAG,"Couldn't close connection!", t);
+                Log.d(RIDE_AUTH_SDK_LOG_TAG,"Couldn't close connection!", t);
             }
         }
     }
@@ -266,7 +266,7 @@ public final class Utils {
             }
             return baos.toByteArray();
         } catch (IOException e) {
-            Log.d(TAG,"Error processing image bytes from url: " + srcUrl);
+            Log.d(RIDE_AUTH_SDK_LOG_TAG,"Error processing image bytes from url: " + srcUrl);
             return null;
         } finally {
             try {
@@ -274,7 +274,7 @@ public final class Utils {
                     connection.disconnect();
                 }
             } catch (Throwable t) {
-                Log.d(TAG,"Couldn't close connection!", t);
+                Log.d(RIDE_AUTH_SDK_LOG_TAG,"Couldn't close connection!", t);
             }
         }
     }
@@ -316,10 +316,10 @@ public final class Utils {
                 try {
                     networkType = teleMan.getDataNetworkType();
                 } catch (SecurityException se) {
-                    Log.d(TAG,"Security Exception caught while fetch network type" + se.getMessage());
+                    Log.d(RIDE_AUTH_SDK_LOG_TAG,"Security Exception caught while fetch network type" + se.getMessage());
                 }
             } else {
-                Log.d(TAG,"READ_PHONE_STATE permission not asked by the app or not granted by the user");
+                Log.d(RIDE_AUTH_SDK_LOG_TAG,"READ_PHONE_STATE permission not asked by the app or not granted by the user");
             }
         } else {
             networkType = teleMan.getNetworkType();
@@ -395,21 +395,21 @@ public final class Utils {
 
     static boolean validateCTID(String cleverTapID) {
         if (cleverTapID == null) {
-            Log.d(TAG,
+            Log.d(RIDE_AUTH_SDK_LOG_TAG,
                     "CLEVERTAP_USE_CUSTOM_ID has been set as 1 in AndroidManifest.xml but custom CleverTap ID passed is NULL.");
             return false;
         }
         if (cleverTapID.isEmpty()) {
-            Log.d(TAG,
+            Log.d(RIDE_AUTH_SDK_LOG_TAG,
                     "CLEVERTAP_USE_CUSTOM_ID has been set as 1 in AndroidManifest.xml but custom CleverTap ID passed is empty.");
             return false;
         }
         if (cleverTapID.length() > 64) {
-            Log.d(TAG,"Custom CleverTap ID passed is greater than 64 characters. ");
+            Log.d(RIDE_AUTH_SDK_LOG_TAG,"Custom CleverTap ID passed is greater than 64 characters. ");
             return false;
         }
         if (!cleverTapID.matches("[A-Za-z0-9()!:$@_-]*")) {
-            Log.d(TAG,"Custom CleverTap ID cannot contain special characters apart from :,(,),_,!,@,$ and - ");
+            Log.d(RIDE_AUTH_SDK_LOG_TAG,"Custom CleverTap ID cannot contain special characters apart from :,(,),_,!,@,$ and - ");
             return false;
         }
         return true;
