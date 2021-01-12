@@ -3,13 +3,13 @@ To Test this project please download and load this project in AS.
 Sample Library
 
 **Set API Key to initialize library in manifest file**
-
+```
 <meta-data android:name="RIDE_AUTH_SDK_API_KEY" android:value="<your_api_key>"/>
-
+```
 **Set notification icon for FCM notification**
-
+```
 <meta-data android:name="RIDE_AUTH_SDK_NOTIFICATION_ICON" android:value="<your_launcher_icon_name>"/>
-
+```
  **Create and initialize a MySDK instance.**
  
  MySDK mySDK = MySDK.getInstance(_instance);
