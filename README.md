@@ -11,11 +11,11 @@ Sample Library
 <meta-data android:name="RIDE_AUTH_SDK_NOTIFICATION_ICON" android:value="<your_launcher_icon_name>"/>
 ```
  **Create and initialize a MySDK instance.**
- 
+ ```
  MySDK mySDK = MySDK.getInstance(_instance);
  
  mySDK.init();
-         
+ ```      
  
  **For FCM please add below code in manifest File**
  
