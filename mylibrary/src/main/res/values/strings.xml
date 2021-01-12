@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="api_key">api_key</string>
+    <string name="msg_token_fmt">Token: %s</string>
+    <string name="default_notification_channel_id">clevertap_channel_id</string>
 </resources>

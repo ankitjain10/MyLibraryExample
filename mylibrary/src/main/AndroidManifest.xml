@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jain.mylibrary">
-
-<!--    <meta-data android:name="my_test_metagadata" android:value="testValue" />-->
-
 </manifest>

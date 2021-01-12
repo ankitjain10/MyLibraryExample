@@ -7,8 +7,20 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessaging;
+
+import java.io.IOException;
+
 public class ToasterMessage {
     private static String API_KEY="api_key";
+    public static final String TAG = "MyLibrary";
 
     public static void showToastMesssage(Context c, String message){
         try {
@@ -17,7 +29,7 @@ public class ToasterMessage {
             Bundle bundle = ai.metaData;
             if(bundle.containsKey(API_KEY)){
                 String myApiKey = bundle.getString(API_KEY);
-                Toast.makeText(c,"myApiKey: "+myApiKey,Toast.LENGTH_SHORT).show();
+//                Toast.makeText(c,"myApiKey: "+myApiKey,Toast.LENGTH_SHORT).show();
             }else{
                 Toast.makeText(c,"Dear developer. " +
                         "Don't forget to configure <meta-data android:name=\"api_key\" android:value=\"your_api_key\"/> in your AndroidManifest.xml file.",Toast.LENGTH_SHORT).show();
@@ -30,7 +42,7 @@ public class ToasterMessage {
                     "Don't forget to configure <meta-data android:name=\"api_key\" android:value=\"your_api_key\"/> in your AndroidManifest.xml file.",Toast.LENGTH_SHORT).show();
             return;
         }
-        Toast.makeText(c,message,Toast.LENGTH_SHORT).show();
+//        Toast.makeText(c,message,Toast.LENGTH_SHORT).show();
 
 
     }
