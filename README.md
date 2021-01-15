@@ -19,24 +19,24 @@ Sample Library
  
  **For FCM please add below code in manifest File**
  ```
-         <service
-            android:name="com.jain.mylibrary.pushnotifications.SDKFirebaseMessagingService"
-            android:exported="false">
+<service
+        android:name="com.jain.mylibrary.pushnotifications.SDKFirebaseMessagingService"
+        android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-        </service>
+</service>
  ```
  or if your app is already using Firebase messaging:
  
  ```
-        <service
-            android:name=".AppFirebaseMessagingService"
-            android:exported="false">
+<service
+        android:name=".AppFirebaseMessagingService"
+        android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-        </service>
+</service>
  ```
  Also make changes in AppFirebaseMessagingService, need to extend SDKFirebaseMessagingService rather than FirebaseMessagingService
  ```
@@ -67,12 +67,12 @@ Sample Library
  
 **For Launching Library Activity in app add below code in manifest file**
 ```
-        <activity android:name="com.jain.mylibrary.SDKActivity">
-        </activity>
+<activity android:name="com.jain.mylibrary.SDKActivity">
+</activity>
 ```
 Send activity name in data payload of FCM Message to launch Library Activity, by default it will open Launching Activity of App. 
 ```
-    {
+{
     ...
     "data": {
              "nm": "SDK Body",
@@ -81,11 +81,8 @@ Send activity name in data payload of FCM Message to launch Library Activity, by
              "target_activity": "SDKActivity"
              }
      ...
-     }
+}
 ```
-
-        
-
 
 For Testing please import API collection from below link
 https://www.getpostman.com/collections/568abfac5dd4590c2529
