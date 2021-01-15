@@ -12,7 +12,7 @@ Sample Library
 ```
  **Create and initialize a MySDK instance.**
  ```
- MySDK mySDK = MySDK.getInstance(_instance);
+ MySDK mySDK = MySDK.getInstance(context);
  
  mySDK.init();
  ```      
