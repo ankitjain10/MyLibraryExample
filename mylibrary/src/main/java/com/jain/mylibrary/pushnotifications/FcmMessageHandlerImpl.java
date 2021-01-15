@@ -38,7 +38,7 @@ public class FcmMessageHandlerImpl implements IFcmMessageHandler {
 
     @Override
     public boolean onNewToken(final Context applicationContext, final String token) {
-        MySDK.getInstance(applicationContext).sendRegistrationToServer(applicationContext,token);
+        MySDK.getInstance(applicationContext).sendRegistrationToServer(token);
 
         return true;
     }
