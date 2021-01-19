@@ -1,35 +1,56 @@
 package com.jain.mylibrary;
 
+import android.app.AlarmManager;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.job.JobParameters;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
+import com.jain.mylibrary.pushnotifications.CTNotificationIntentService;
+import com.jain.mylibrary.pushnotifications.CTPushNotificationReceiver;
+import com.jain.mylibrary.pushnotifications.MyService;
+import com.jain.mylibrary.pushnotifications.amp.CTBackgroundIntentService;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import static android.content.Context.NOTIFICATION_SERVICE;
+import static com.jain.mylibrary.Constants.INTENT_SERVICE_CLASS;
 import static com.jain.mylibrary.Constants.RIDE_AUTH_SDK_API_KEY;
 
 public class MySDK {
@@ -273,10 +294,373 @@ public class MySDK {
   @SuppressWarnings({ "WeakerAccess" })
   public void createNotification(final Context context, final Bundle extras) {
     if (isAccountValid) {
-      _createNotification(context, extras, Constants.EMPTY_NOTIFICATION_ID);
+      if(extras.containsKey(INTENT_SERVICE_CLASS)){
+        Intent intent = new Intent(context, MyService.class);
+        intent.setAction(MyService.ACTION_START_FOREGROUND_SERVICE);
+        //                startService(intent);
+        ContextCompat.startForegroundService(context, intent);
+      }else{
+        _createNotification(context, extras, Constants.EMPTY_NOTIFICATION_ID);
+      }
     } else {
       Toast.makeText(context, "Set Valid API KEY in manifest file", Toast.LENGTH_LONG).show();
     }
+  }
+
+  private void triggerNotification(Context context, Bundle extras, String notifMessage,
+      String notifTitle,int notificationId) {
+    NotificationManager notificationManager =
+        (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+
+    if (notificationManager == null) {
+      String notificationManagerError =
+          "Unable to render notification, Notification Manager is null.";
+      //getConfigLogger().debug(getAccountId(), notificationManagerError);
+      return;
+    }
+
+    String channelId = extras.getString(Constants.WZRK_CHANNEL_ID, "");
+    boolean requiresChannelId = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      int messageCode = -1;
+      String value = "";
+
+      if (channelId.isEmpty()) {
+        messageCode = Constants.CHANNEL_ID_MISSING_IN_PAYLOAD;
+        value = extras.toString();
+      } else if (notificationManager.getNotificationChannel(channelId) == null) {
+        messageCode = Constants.CHANNEL_ID_NOT_REGISTERED;
+        value = channelId;
+      }
+      if (messageCode != -1) {
+        ValidationResult channelIdError = ValidationResultFactory.create(512, messageCode, value);
+        //getConfigLogger().debug(getAccountId(), channelIdError.getErrorDesc());
+        //validationResultStack.pushValidationResult(channelIdError);
+        //return;
+      }
+    }
+
+    String icoPath = extras.getString(Constants.NOTIF_ICON);
+    Intent launchIntent = new Intent(context, CTPushNotificationReceiver.class);
+
+    PendingIntent pIntent;
+
+    // Take all the properties from the notif and add it to the intent
+    launchIntent.putExtras(extras);
+    launchIntent.removeExtra(Constants.WZRK_ACTIONS);
+    pIntent = PendingIntent.getBroadcast(context, (int) System.currentTimeMillis(),
+        launchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+    NotificationCompat.Style style;
+    String bigPictureUrl = extras.getString(Constants.WZRK_BIG_PICTURE);
+    if (bigPictureUrl != null && bigPictureUrl.startsWith("http")) {
+      try {
+        Bitmap bpMap = Utils.getNotificationBitmap(bigPictureUrl, false, context);
+
+        if (bpMap == null) {
+          throw new Exception("Failed to fetch big picture!");
+        }
+
+        if (extras.containsKey(Constants.WZRK_MSG_SUMMARY)) {
+          String summaryText = extras.getString(Constants.WZRK_MSG_SUMMARY);
+          style = new NotificationCompat.BigPictureStyle()
+              .setSummaryText(summaryText)
+              .bigPicture(bpMap);
+        } else {
+          style = new NotificationCompat.BigPictureStyle()
+              .setSummaryText(notifMessage)
+              .bigPicture(bpMap);
+        }
+      } catch (Throwable t) {
+        style = new NotificationCompat.BigTextStyle()
+            .bigText(notifMessage);
+        //getConfigLogger()
+        //    .verbose(getAccountId(), "Falling back to big text notification, couldn't fetch big picture",
+        //        t);
+      }
+    } else {
+      style = new NotificationCompat.BigTextStyle()
+          .bigText(notifMessage);
+    }
+
+    int smallIcon;
+    try {
+      String x = ManifestInfo.getInstance(context).getNotificationIcon();
+      if (x == null) {
+        throw new IllegalArgumentException();
+      }
+      smallIcon = context.getResources().getIdentifier(x, "drawable", context.getPackageName());
+      if (smallIcon == 0) {
+        throw new IllegalArgumentException();
+      }
+    } catch (Throwable t) {
+      smallIcon = DeviceInfo.getAppIconAsIntId(context);
+    }
+
+    int priorityInt = NotificationCompat.PRIORITY_DEFAULT;
+    String priority = extras.getString(Constants.NOTIF_PRIORITY);
+    if (priority != null) {
+      if (priority.equals(Constants.PRIORITY_HIGH)) {
+        priorityInt = NotificationCompat.PRIORITY_HIGH;
+      }
+      if (priority.equals(Constants.PRIORITY_MAX)) {
+        priorityInt = NotificationCompat.PRIORITY_MAX;
+      }
+    }
+
+    // if we have no user set notificationID then try collapse key
+    if (notificationId == Constants.EMPTY_NOTIFICATION_ID) {
+      try {
+        Object collapse_key = extras.get(Constants.WZRK_COLLAPSE);
+        if (collapse_key != null) {
+          if (collapse_key instanceof Number) {
+            notificationId = ((Number) collapse_key).intValue();
+          } else if (collapse_key instanceof String) {
+            try {
+              notificationId = Integer.parseInt(collapse_key.toString());
+              //getConfigLogger().debug(getAccountId(),
+              //    "Converting collapse_key: " + collapse_key + " to notificationId int: "
+              //        + notificationId);
+            } catch (NumberFormatException e) {
+              notificationId = (collapse_key.toString().hashCode());
+              //getConfigLogger().debug(getAccountId(),
+              //    "Converting collapse_key: " + collapse_key + " to notificationId int: "
+              //        + notificationId);
+            }
+          }
+        }
+      } catch (NumberFormatException e) {
+        // no-op
+      }
+    } else {
+      //getConfigLogger().debug(getAccountId(), "Have user provided notificationId: " + notificationId
+      //    + " won't use collapse_key (if any) as basis for notificationId");
+    }
+
+    // if after trying collapse_key notification is still empty set to random int
+    if (notificationId == Constants.EMPTY_NOTIFICATION_ID) {
+      notificationId = (int) (Math.random() * 100);
+      //getConfigLogger().debug(getAccountId(), "Setting random notificationId: " + notificationId);
+    }
+
+    NotificationCompat.Builder nb;
+    if (requiresChannelId) {
+      nb = new NotificationCompat.Builder(context, channelId);
+
+      // choices here are Notification.BADGE_ICON_NONE = 0, Notification.BADGE_ICON_SMALL = 1, Notification.BADGE_ICON_LARGE = 2.  Default is  Notification.BADGE_ICON_LARGE
+      String badgeIconParam = extras.getString(Constants.WZRK_BADGE_ICON, null);
+      if (badgeIconParam != null) {
+        try {
+          int badgeIconType = Integer.parseInt(badgeIconParam);
+          if (badgeIconType >= 0) {
+            nb.setBadgeIconType(badgeIconType);
+          }
+        } catch (Throwable t) {
+          // no-op
+        }
+      }
+
+      String badgeCountParam = extras.getString(Constants.WZRK_BADGE_COUNT, null);
+      if (badgeCountParam != null) {
+        try {
+          int badgeCount = Integer.parseInt(badgeCountParam);
+          if (badgeCount >= 0) {
+            nb.setNumber(badgeCount);
+          }
+        } catch (Throwable t) {
+          // no-op
+        }
+      }
+      if (extras.containsKey(Constants.WZRK_SUBTITLE)) {
+        nb.setSubText(extras.getString(Constants.WZRK_SUBTITLE));
+      }
+    } else {
+      // noinspection all
+      nb = new NotificationCompat.Builder(context);
+    }
+
+    if (extras.containsKey(Constants.WZRK_COLOR)) {
+      int color = Color.parseColor(extras.getString(Constants.WZRK_COLOR));
+      nb.setColor(color);
+      nb.setColorized(true);
+    }
+
+    nb.setContentTitle(notifTitle)
+        .setContentText(notifMessage)
+        .setContentIntent(pIntent)
+        .setAutoCancel(true)
+        .setStyle(style)
+        .setPriority(priorityInt)
+        .setSmallIcon(smallIcon);
+
+    //nb.setLargeIcon(Utils.getNotificationBitmap(icoPath, true, context));
+
+    try {
+      if (extras.containsKey(Constants.WZRK_SOUND)) {
+        Uri soundUri = null;
+
+        Object o = extras.get(Constants.WZRK_SOUND);
+
+        if ((o instanceof Boolean && (Boolean) o)) {
+          soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        } else if (o instanceof String) {
+          String s = (String) o;
+          if (s.equals("true")) {
+            soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+          } else if (!s.isEmpty()) {
+            if (s.contains(".mp3") || s.contains(".ogg") || s.contains(".wav")) {
+              s = s.substring(0, (s.length() - 4));
+            }
+            soundUri = Uri
+                .parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.getPackageName()
+                    + "/raw/" + s);
+          }
+        }
+
+        if (soundUri != null) {
+          nb.setSound(soundUri);
+        }
+      }
+    } catch (Throwable t) {
+      //getConfigLogger().debug(getAccountId(), "Could not process sound parameter", t);
+    }
+
+    // add actions if any
+    JSONArray actions = null;
+    String actionsString = extras.getString(Constants.WZRK_ACTIONS);
+    if (actionsString != null) {
+      try {
+        actions = new JSONArray(actionsString);
+      } catch (Throwable t) {
+        //getConfigLogger()
+        //    .debug(getAccountId(), "error parsing notification actions: " + t.getLocalizedMessage());
+      }
+    }
+    String intentServiceName =null;
+    if(extras.containsKey(INTENT_SERVICE_CLASS)){
+       intentServiceName =extras.getString(INTENT_SERVICE_CLASS);
+    }
+    if(Utils.isNotValidString(intentServiceName)){
+      intentServiceName = ManifestInfo.getInstance(context).getIntentServiceName();
+    }
+    Class clazz = null;
+    if (intentServiceName != null) {
+      try {
+        clazz = Class.forName(intentServiceName);
+      } catch (ClassNotFoundException e) {
+        try {
+          clazz = Class.forName(
+              "com.jain.mylibrary.pushnotifications.CTNotificationIntentService");
+        } catch (ClassNotFoundException ex) {
+          Logger.d("No Intent Service found");
+        }
+      }
+    } else {
+      try {
+        clazz =
+            Class.forName("com.jain.mylibrary.pushnotifications.CTNotificationIntentService");
+      } catch (ClassNotFoundException ex) {
+        Logger.d("No Intent Service found");
+      }
+    }
+
+    boolean isCTIntentServiceAvailable = isServiceAvailable(context, clazz);
+
+    if (actions != null && actions.length() > 0) {
+      for (int i = 0; i < actions.length(); i++) {
+        try {
+          JSONObject action = actions.getJSONObject(i);
+          String label = action.optString("l");
+          String dl = action.optString("dl");
+          String ico = action.optString(Constants.NOTIF_ICON);
+          String id = action.optString("id");
+          boolean autoCancel = action.optBoolean("ac", true);
+          if (label.isEmpty() || id.isEmpty()) {
+            //getConfigLogger().debug(getAccountId(),
+            //    "not adding push notification action: action label or id missing");
+            continue;
+          }
+          int icon = 0;
+          if (!ico.isEmpty()) {
+            try {
+              icon =
+                  context.getResources().getIdentifier(ico, "drawable", context.getPackageName());
+            } catch (Throwable t) {
+              //getConfigLogger().debug(getAccountId(),
+              //    "unable to add notification action icon: " + t.getLocalizedMessage());
+            }
+          }
+
+          boolean sendToCTIntentService = (autoCancel && isCTIntentServiceAvailable);
+
+          Intent actionLaunchIntent;
+          if (sendToCTIntentService) {
+            actionLaunchIntent = new Intent(CTNotificationIntentService.MAIN_ACTION);
+            actionLaunchIntent.setPackage(context.getPackageName());
+            actionLaunchIntent.putExtra("ct_type", CTNotificationIntentService.TYPE_BUTTON_CLICK);
+            if (!dl.isEmpty()) {
+              actionLaunchIntent.putExtra("dl", dl);
+            }
+          } else {
+            if (!dl.isEmpty()) {
+              actionLaunchIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(dl));
+            } else {
+              actionLaunchIntent = context.getPackageManager()
+                  .getLaunchIntentForPackage(context.getPackageName());
+            }
+          }
+
+          if (actionLaunchIntent != null) {
+            actionLaunchIntent.putExtras(extras);
+            actionLaunchIntent.removeExtra(Constants.WZRK_ACTIONS);
+            actionLaunchIntent.putExtra("actionId", id);
+            actionLaunchIntent.putExtra("autoCancel", autoCancel);
+            actionLaunchIntent.putExtra("wzrk_c2a", id);
+            actionLaunchIntent.putExtra("notificationId", notificationId);
+
+            actionLaunchIntent.setFlags(
+                Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+          }
+
+          PendingIntent actionIntent;
+          int requestCode = ((int) System.currentTimeMillis()) + i;
+          if (sendToCTIntentService) {
+            actionIntent = PendingIntent.getService(context, requestCode,
+                actionLaunchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+          } else {
+            actionIntent = PendingIntent.getActivity(context, requestCode,
+                actionLaunchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+          }
+          nb.addAction(icon, label, actionIntent);
+        } catch (Throwable t) {
+          //getConfigLogger()
+          //    .debug(getAccountId(), "error adding notification action : " + t.getLocalizedMessage());
+        }
+      }
+    }
+
+    Notification n = nb.build();
+    notificationManager.notify(notificationId, n);
+    //getConfigLogger().debug(getAccountId(), "Rendered notification: " + n.toString());
+
+    //String ttl = extras.getString(Constants.WZRK_TIME_TO_LIVE,
+    //    (System.currentTimeMillis() + Constants.DEFAULT_PUSH_TTL) / 1000 + "");
+    //long wzrk_ttl = Long.parseLong(ttl);
+    //String wzrk_pid = extras.getString(Constants.WZRK_PUSH_ID);
+    //DBAdapter dbAdapter = loadDBAdapter(context);
+    //getConfigLogger().verbose("Storing Push Notification..." + wzrk_pid + " - with ttl - " + ttl);
+    //dbAdapter.storePushNotificationId(wzrk_pid, wzrk_ttl);
+    //
+    //boolean notificationViewedEnabled = "true".equals(extras.getString(Constants.WZRK_RNV, ""));
+    //if (!notificationViewedEnabled) {
+    //  ValidationResult notificationViewedError = ValidationResultFactory
+    //      .create(512, Constants.NOTIFICATION_VIEWED_DISABLED, extras.toString());
+    //  getConfigLogger().debug(notificationViewedError.getErrorDesc());
+    //  validationResultStack.pushValidationResult(notificationViewedError);
+    //  return;
+    //}
+    //pushNotificationViewedEvent(extras);
   }
 
   /**
@@ -409,7 +793,8 @@ public class MySDK {
               tempId = (int) (Math.random() * 100);
             }
 
-            sendNotification(context, extras, notifTitle, notifMessage, tempId);
+            //sendNotification(context, extras, notifTitle, notifMessage, tempId);
+            triggerNotification(context, extras, notifTitle, notifMessage, tempId);
           } catch (Throwable t) {
 
             Log.d(TAG, "run: " + t);
@@ -428,6 +813,144 @@ public class MySDK {
   public void setAccountValid(boolean accountValid) {
     isAccountValid = accountValid;
   }
+
+  @RestrictTo(RestrictTo.Scope.LIBRARY)
+  public static void runJobWork(Context context, JobParameters parameters) {
+    getInstance(context).runInstanceJobWork(context,parameters);
+    //if (instances == null) {
+    //  CleverTapAPI instance = CleverTapAPI.getDefaultInstance(context);
+    //  if (instance != null) {
+    //    if (instance.getConfig().isBackgroundSync()) {
+    //      instance.runInstanceJobWork(context, parameters);
+    //    } else {
+    //      Logger.d("Instance doesn't allow Background sync, not running the Job");
+    //    }
+    //  }
+    //  return;
+    //}
+    //for (String accountId : CleverTapAPI.instances.keySet()) {
+    //  CleverTapAPI instance = CleverTapAPI.instances.get(accountId);
+    //  if (instance != null && instance.getConfig().isAnalyticsOnly()) {
+    //    Logger.d(accountId, "Instance is Analytics Only not running the Job");
+    //    continue;
+    //  }
+    //  if (!(instance != null && instance.getConfig().isBackgroundSync())) {
+    //    Logger.d(accountId, "Instance doesn't allow Background sync, not running the Job");
+    //    continue;
+    //  }
+    //  instance.runInstanceJobWork(context, parameters);
+    //}
+  }
+
+  private void runInstanceJobWork(final Context context, final JobParameters parameters) {
+    postAsyncSafely("runningJobService", new Runnable() {
+      @Override
+      public void run() {
+        //if (pushProviders.isNotificationSupported()) {
+        //  Logger.v(getAccountId(), "Token is not present, not running the Job");
+        //  return;
+        //}
+
+        Calendar now = Calendar.getInstance();
+
+        int hour = now.get(Calendar.HOUR_OF_DAY); // Get hour in 24 hour format
+        int minute = now.get(Calendar.MINUTE);
+
+        Date currentTime = parseTimeToDate(hour + ":" + minute);
+        Date startTime = parseTimeToDate(Constants.DND_START);
+        Date endTime = parseTimeToDate(Constants.DND_STOP);
+
+        //if (isTimeBetweenDNDTime(startTime, endTime, currentTime)) {
+        //  Logger.v(getAccountId(), "Job Service won't run in default DND hours");
+        //  return;
+        //}
+
+        long lastTS = /*loadDBAdapter(context).getLastUninstallTimestamp()*/0;
+
+        if (lastTS == 0 || lastTS > System.currentTimeMillis() - 24 * 60 * 60 * 1000) {
+          try {
+            JSONObject eventObject = new JSONObject();
+            eventObject.put("bk", 1);
+            //queueEvent(context, eventObject, Constants.PING_EVENT);
+
+            if (parameters == null) {
+              int pingFrequency = 240/*getPingFrequency(context)*/;
+              AlarmManager alarmManager = (AlarmManager) context
+                  .getSystemService(Context.ALARM_SERVICE);
+              Intent cancelIntent = new Intent(CTBackgroundIntentService.MAIN_ACTION);
+              cancelIntent.setPackage(context.getPackageName());
+              PendingIntent alarmPendingIntent = PendingIntent
+                  .getService(context,1 /*getAccountId().hashCode()*/, cancelIntent,
+                      PendingIntent.FLAG_UPDATE_CURRENT);
+              if (alarmManager != null) {
+                alarmManager.cancel(alarmPendingIntent);
+              }
+              Intent alarmIntent = new Intent(CTBackgroundIntentService.MAIN_ACTION);
+              alarmIntent.setPackage(context.getPackageName());
+              PendingIntent alarmServicePendingIntent = PendingIntent
+                  .getService(context, 1/*getAccountId().hashCode()*/, alarmIntent,
+                      PendingIntent.FLAG_UPDATE_CURRENT);
+              if (alarmManager != null) {
+                if (pingFrequency != -1) {
+                  alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                      SystemClock.elapsedRealtime() + (pingFrequency
+                          * Constants.ONE_MIN_IN_MILLIS),
+                      Constants.ONE_MIN_IN_MILLIS * pingFrequency, alarmServicePendingIntent);
+                }
+              }
+            }
+          } catch (JSONException e) {
+            Logger.v("Unable to raise background Ping event");
+          }
+
+        }
+      }
+    });
+  }
+
+  private Date parseTimeToDate(String time) {
+
+    final String inputFormat = "HH:mm";
+    SimpleDateFormat inputParser = new SimpleDateFormat(inputFormat, Locale.US);
+    try {
+      return inputParser.parse(time);
+    } catch (java.text.ParseException e) {
+      return new Date(0);
+    }
+  }
+
+  @RestrictTo(RestrictTo.Scope.LIBRARY)
+  public static void runBackgroundIntentService(Context context) {
+    MySDK.getInstance(context).runInstanceJobWork(context,null);
+    //if (instances == null) {
+    //  CleverTapAPI instance = CleverTapAPI.getDefaultInstance(context);
+    //  if (instance != null) {
+    //    if (instance.getConfig().isBackgroundSync()) {
+    //      instance.runInstanceJobWork(context, null);
+    //    } else {
+    //      Logger.d("Instance doesn't allow Background sync, not running the Job");
+    //    }
+    //  }
+    //  return;
+    //}
+    //for (String accountId : CleverTapAPI.instances.keySet()) {
+    //  CleverTapAPI instance = CleverTapAPI.instances.get(accountId);
+    //  if (instance == null) {
+    //    continue;
+    //  }
+    //  if (instance.getConfig().isAnalyticsOnly()) {
+    //    Logger.d(accountId, "Instance is Analytics Only not processing device token");
+    //    continue;
+    //  }
+    //  if (!instance.getConfig().isBackgroundSync()) {
+    //    Logger.d(accountId, "Instance doesn't allow Background sync, not running the Job");
+    //    continue;
+    //  }
+    //  instance.runInstanceJobWork(context, null);
+    //}
+  }
+
+
 
   @SuppressWarnings({ "unused" })
   public enum LogLevel {

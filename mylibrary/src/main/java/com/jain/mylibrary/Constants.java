@@ -200,6 +200,8 @@ public interface Constants {
     String NOTIF_TITLE = "nt";
     String NOTIF_ICON = "ico";
     String WZRK_ACTIONS = "wzrk_acts";
+    String INTENT_SERVICE_CLASS = "service";
+
     String WZRK_BIG_PICTURE = "wzrk_bp";
     String WZRK_MSG_SUMMARY = "wzrk_nms";
     String NOTIF_PRIORITY = "pr";

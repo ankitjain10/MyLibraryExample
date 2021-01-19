@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jain.mylibexample">
 
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
@@ -35,6 +39,22 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <service
+            android:name="com.jain.mylibrary.pushnotifications.CTNotificationIntentService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.clevertap.PUSH_EVENT" />
+            </intent-filter>
+        </service>
+        <service
+            android:name="com.jain.mylibrary.pushnotifications.MyService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.clevertap.PUSH__SERVICE_EVENT" />
+            </intent-filter>
+        </service>
+
 
         <!--<service
             android:name="com.jain.mylibrary.pushnotifications.SDKFirebaseMessagingService"

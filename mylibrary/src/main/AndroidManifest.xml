@@ -1,4 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.jain.mylibrary">
+<manifest
+    package="com.jain.mylibrary"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+  <application>
+
+  <receiver
+      android:name=".pushnotifications.CTPushNotificationReceiver"
+      android:enabled="true"
+      android:exported="false" />
+
+  <service
+      android:name=".pushnotifications.amp.CTBackgroundIntentService"
+      android:exported="false"
+      android:permission="android.permission.BIND_JOB_SERVICE">
+    <intent-filter>
+      <action android:name="com.clevertap.BG_EVENT" />
+    </intent-filter>
+  </service>
+
+  <service
+      android:name=".pushnotifications.amp.CTBackgroundJobService"
+      android:exported="false"
+      android:permission="android.permission.BIND_JOB_SERVICE" />
+  </application>
 </manifest>

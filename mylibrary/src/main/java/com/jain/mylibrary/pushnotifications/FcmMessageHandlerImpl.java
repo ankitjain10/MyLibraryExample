@@ -1,9 +1,11 @@
 package com.jain.mylibrary.pushnotifications;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.core.content.ContextCompat;
 import com.google.firebase.messaging.RemoteMessage;
 import com.jain.mylibrary.MySDK;
 import com.jain.mylibrary.pushnotifications.IFcmMessageHandler;
@@ -24,6 +26,9 @@ public class FcmMessageHandlerImpl implements IFcmMessageHandler {
         Log.d(RIDE_AUTH_SDK_LOG_TAG, "onMessageReceived: "+message);
         boolean isSuccess = false;
         try {
+
+
+
             if (message.getData().size() > 0) {
                 Bundle extras = new Bundle();
                 for (Map.Entry<String, String> entry : message.getData().entrySet()) {
