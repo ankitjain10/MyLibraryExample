@@ -1,5 +1,3 @@
 <resources>
-    <string name="app_name">MyLibExample</string>
-    <string name="msg_token_fmt">token %s</string>
-    <string name="default_channel_id">app_channel_id</string>
+    <string name="app_name">MVVM Sample App</string>
 </resources>
